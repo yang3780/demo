@@ -21,6 +21,32 @@ app.use('/api/user-scores', userQuestionScoreRoutes);
 // 静态文件服务，托管Vue打包后的前端页面
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
+// 健康检查端点
+app.get('/api/health', async (req, res) => {
+  try {
+    const db = require('./config/db').getDB();
+    if (db) {
+      // 尝试执行一个简单的数据库操作
+      await db.command({ ping: 1 });
+      res.status(200).json({ 
+        status: 'ok', 
+        database: 'connected' 
+      });
+    } else {
+      res.status(500).json({ 
+        status: 'error', 
+        database: 'not connected' 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      database: 'connection failed',
+      error: error.message 
+    });
+  }
+});
+
 // 处理所有其他请求，返回index.html（用于SPA路由）
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
