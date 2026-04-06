@@ -1,3 +1,6 @@
 const app = require('../src/app');
 
-module.exports = app;
+// Vercel Serverless Function handler
+module.exports = async (req, res) => {
+  await app(req, res);
+};
