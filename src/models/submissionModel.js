@@ -37,6 +37,10 @@ class SubmissionModel {
   static async findById(id) {
     const db = getDB();
     const submission = await db.collection('submissions').findOne({ _id: id });
+    if (submission) {
+      submission.id = submission._id;
+      delete submission._id;
+    }
     return submission;
   }
 
@@ -45,7 +49,12 @@ class SubmissionModel {
     const submissions = await db.collection('submissions').find({ user_id: userId })
       .sort({ submitted_at: -1 })
       .toArray();
-    return submissions;
+    // 转换 _id 为 id
+    return submissions.map(submission => {
+      submission.id = submission._id;
+      delete submission._id;
+      return submission;
+    });
   }
 
   static async getSubmissionsByQuestionId(questionId) {
@@ -53,7 +62,12 @@ class SubmissionModel {
     const submissions = await db.collection('submissions').find({ question_id: questionId })
       .sort({ submitted_at: -1 })
       .toArray();
-    return submissions;
+    // 转换 _id 为 id
+    return submissions.map(submission => {
+      submission.id = submission._id;
+      delete submission._id;
+      return submission;
+    });
   }
 
   static async getSubmissionsByUserIdAndQuestionId(userId, questionId) {
@@ -61,7 +75,12 @@ class SubmissionModel {
     const submissions = await db.collection('submissions').find({ user_id: userId, question_id: questionId })
       .sort({ submitted_at: -1 })
       .toArray();
-    return submissions;
+    // 转换 _id 为 id
+    return submissions.map(submission => {
+      submission.id = submission._id;
+      delete submission._id;
+      return submission;
+    });
   }
 
   static async getLatestSubmission(userId, questionId) {
@@ -70,6 +89,10 @@ class SubmissionModel {
       { user_id: userId, question_id: questionId },
       { sort: { submitted_at: -1 } }
     );
+    if (submission) {
+      submission.id = submission._id;
+      delete submission._id;
+    }
     return submission;
   }
 

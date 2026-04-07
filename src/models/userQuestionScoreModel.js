@@ -32,6 +32,10 @@ class UserQuestionScoreModel {
       user_id: userId,
       question_id: questionId
     });
+    if (score) {
+      score.id = score._id;
+      delete score._id;
+    }
     return score;
   }
 
@@ -40,7 +44,12 @@ class UserQuestionScoreModel {
     const scores = await db.collection('user_question_scores').find({
       user_id: userId
     }).sort({ solved_at: -1 }).toArray();
-    return scores;
+    // 转换 _id 为 id
+    return scores.map(score => {
+      score.id = score._id;
+      delete score._id;
+      return score;
+    });
   }
 
   static async getUsersSolvedQuestionCount(userId) {

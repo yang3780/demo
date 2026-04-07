@@ -22,31 +22,55 @@ class QuestionModel {
   static async findById(id) {
     const db = getDB();
     const question = await db.collection('questions').findOne({ _id: id });
+    if (question) {
+      question.id = question._id;
+      delete question._id;
+    }
     return question;
   }
 
   static async getAllQuestions() {
     const db = getDB();
     const questions = await db.collection('questions').find({}).toArray();
-    return questions;
+    // 转换 _id 为 id
+    return questions.map(question => {
+      question.id = question._id;
+      delete question._id;
+      return question;
+    });
   }
 
   static async getQuestionsByDifficulty(difficulty) {
     const db = getDB();
     const questions = await db.collection('questions').find({ difficulty }).toArray();
-    return questions;
+    // 转换 _id 为 id
+    return questions.map(question => {
+      question.id = question._id;
+      delete question._id;
+      return question;
+    });
   }
 
   static async getQuestionsByType(type) {
     const db = getDB();
     const questions = await db.collection('questions').find({ type }).toArray();
-    return questions;
+    // 转换 _id 为 id
+    return questions.map(question => {
+      question.id = question._id;
+      delete question._id;
+      return question;
+    });
   }
 
   static async getQuestionsByDifficultyAndType(difficulty, type) {
     const db = getDB();
     const questions = await db.collection('questions').find({ difficulty, type }).toArray();
-    return questions;
+    // 转换 _id 为 id
+    return questions.map(question => {
+      question.id = question._id;
+      delete question._id;
+      return question;
+    });
   }
 
   static async update(id, title, description, inputFormat, outputFormat, sampleInput, sampleOutput, difficulty, score, type, timeLimit, memoryLimit) {

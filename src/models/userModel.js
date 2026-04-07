@@ -24,18 +24,30 @@ class UserModel {
   static async findByUsername(username) {
     const db = getDB();
     const user = await db.collection('users').findOne({ username });
+    if (user) {
+      user.id = user._id;
+      delete user._id;
+    }
     return user;
   }
 
   static async findByEmail(email) {
     const db = getDB();
     const user = await db.collection('users').findOne({ email });
+    if (user) {
+      user.id = user._id;
+      delete user._id;
+    }
     return user;
   }
 
   static async findById(id) {
     const db = getDB();
     const user = await db.collection('users').findOne({ _id: id });
+    if (user) {
+      user.id = user._id;
+      delete user._id;
+    }
     return user;
   }
 
@@ -52,9 +64,15 @@ class UserModel {
     const db = getDB();
     const users = await db.collection('users').find(
       {},
-      { projection: { id: 1, username: 1, email: 1, role: 1, total_score: 1, created_at: 1 } }
+      { projection: { _id: 1, username: 1, email: 1, role: 1, total_score: 1, created_at: 1 } }
     ).sort({ total_score: -1 }).toArray();
-    return users;
+    
+    // 转换 _id 为 id
+    return users.map(user => {
+      user.id = user._id;
+      delete user._id;
+      return user;
+    });
   }
 
   static async updateRole(userId, role) {
