@@ -22,8 +22,10 @@ class UserModel {
   }
 
   static async findByUsername(username) {
+    console.log('Looking for user with username:', username);
     const db = getDB();
     const user = await db.collection('users').findOne({ username });
+    console.log('Found user:', user);
     if (user) {
       user.id = user._id;
       delete user._id;
