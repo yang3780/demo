@@ -37,7 +37,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 // 处理所有其他请求，返回index.html（用于SPA路由）
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
