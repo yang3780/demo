@@ -1,64 +1,80 @@
-const pool = require('../config/db');
+const { getDB } = require('../config/db');
 
 class QuestionModel {
   static async create(title, description, inputFormat, outputFormat, sampleInput, sampleOutput, difficulty, score, type, timeLimit, memoryLimit) {
-    const [result] = await pool.execute(
-      'INSERT INTO questions (title, description, input_format, output_format, sample_input, sample_output, difficulty, score, type, time_limit, memory_limit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [title, description, inputFormat, outputFormat, sampleInput, sampleOutput, difficulty, score, type, timeLimit, memoryLimit]
-    );
+    const db = getDB();
+    const result = await db.collection('questions').insertOne({
+      title,
+      description,
+      input_format: inputFormat,
+      output_format: outputFormat,
+      sample_input: sampleInput,
+      sample_output: sampleOutput,
+      difficulty,
+      score,
+      type,
+      time_limit: timeLimit,
+      memory_limit: memoryLimit
+    });
     return result;
   }
 
   static async findById(id) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM questions WHERE id = ?',
-      [id]
-    );
-    return rows[0];
+    const db = getDB();
+    const question = await db.collection('questions').findOne({ _id: id });
+    return question;
   }
 
   static async getAllQuestions() {
-    const [rows] = await pool.execute('SELECT * FROM questions');
-    return rows;
+    const db = getDB();
+    const questions = await db.collection('questions').find({}).toArray();
+    return questions;
   }
 
   static async getQuestionsByDifficulty(difficulty) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM questions WHERE difficulty = ?',
-      [difficulty]
-    );
-    return rows;
+    const db = getDB();
+    const questions = await db.collection('questions').find({ difficulty }).toArray();
+    return questions;
   }
 
   static async getQuestionsByType(type) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM questions WHERE type = ?',
-      [type]
-    );
-    return rows;
+    const db = getDB();
+    const questions = await db.collection('questions').find({ type }).toArray();
+    return questions;
   }
 
   static async getQuestionsByDifficultyAndType(difficulty, type) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM questions WHERE difficulty = ? AND type = ?',
-      [difficulty, type]
-    );
-    return rows;
+    const db = getDB();
+    const questions = await db.collection('questions').find({ difficulty, type }).toArray();
+    return questions;
   }
 
   static async update(id, title, description, inputFormat, outputFormat, sampleInput, sampleOutput, difficulty, score, type, timeLimit, memoryLimit) {
-    const [result] = await pool.execute(
-      'UPDATE questions SET title = ?, description = ?, input_format = ?, output_format = ?, sample_input = ?, sample_output = ?, difficulty = ?, score = ?, type = ?, time_limit = ?, memory_limit = ? WHERE id = ?',
-      [title, description, inputFormat, outputFormat, sampleInput, sampleOutput, difficulty, score, type, timeLimit, memoryLimit, id]
+    const db = getDB();
+    const result = await db.collection('questions').updateOne(
+      { _id: id },
+      {
+        $set: {
+          title,
+          description,
+          input_format: inputFormat,
+          output_format: outputFormat,
+          sample_input: sampleInput,
+          sample_output: sampleOutput,
+          difficulty,
+          score,
+          type,
+          time_limit: timeLimit,
+          memory_limit: memoryLimit
+        }
+      }
     );
     return result;
   }
 
   static async delete(id) {
-    const [result] = await pool.execute(
-      'DELETE FROM questions WHERE id = ?',
-      [id]
-    );
+    const db = getDB();
+    const result = await db.collection('questions').deleteOne({ _id: id });
     return result;
   }
 }

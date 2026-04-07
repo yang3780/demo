@@ -1,13 +1,18 @@
-const pool = require('../config/db');
+const { getDB } = require('../config/db');
 
 class UserModel {
   static async create(username, password, email, role = 'user') {
     try {
       console.log('Attempting to create user:', username, email, role);
-      const [result] = await pool.execute(
-        'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)',
-        [username, password, email, role]
-      );
+      const db = getDB();
+      const result = await db.collection('users').insertOne({
+        username,
+        password,
+        email,
+        role,
+        total_score: 0,
+        created_at: new Date()
+      });
       console.log('User created successfully:', result);
       return result;
     } catch (error) {
@@ -17,46 +22,46 @@ class UserModel {
   }
 
   static async findByUsername(username) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
-    );
-    return rows[0];
+    const db = getDB();
+    const user = await db.collection('users').findOne({ username });
+    return user;
   }
 
   static async findByEmail(email) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
-    );
-    return rows[0];
+    const db = getDB();
+    const user = await db.collection('users').findOne({ email });
+    return user;
   }
 
   static async findById(id) {
-    const [rows] = await pool.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [id]
-    );
-    return rows[0];
+    const db = getDB();
+    const user = await db.collection('users').findOne({ _id: id });
+    return user;
   }
 
   static async updateScore(userId, score) {
-    const [result] = await pool.execute(
-      'UPDATE users SET total_score = total_score + ? WHERE id = ?',
-      [score, userId]
+    const db = getDB();
+    const result = await db.collection('users').updateOne(
+      { _id: userId },
+      { $inc: { total_score: score } }
     );
     return result;
   }
 
   static async getAllUsers() {
-    const [rows] = await pool.execute('SELECT id, username, email, role, total_score, created_at FROM users ORDER BY total_score DESC');
-    return rows;
+    const db = getDB();
+    const users = await db.collection('users').find(
+      {},
+      { projection: { id: 1, username: 1, email: 1, role: 1, total_score: 1, created_at: 1 } }
+    ).sort({ total_score: -1 }).toArray();
+    return users;
   }
 
   static async updateRole(userId, role) {
-    const [result] = await pool.execute(
-      'UPDATE users SET role = ? WHERE id = ?',
-      [role, userId]
+    const db = getDB();
+    const result = await db.collection('users').updateOne(
+      { _id: userId },
+      { $set: { role } }
     );
     return result;
   }
